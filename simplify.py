@@ -1,17 +1,20 @@
 import argparse
 from typing import List, Dict
 
-from io_handler import read_route_json, save_route_osm, save_route_json
+from io_handler import read_route_json, save_route_osm, save_route_json, read_route_osm
 from node import Node
 from node_pair import create_node_pairs, NodePair
 from route import create_route, Route
 from segment import create_segments
 
 
-def simplify_route(path_from: str, path_to: str, json: bool):
+def simplify_route(path_from: str, path_to: str, from_json: bool, to_json: bool):
     # Read route from file
     print("Reading the input route...")
-    original_route: List[Node] = read_route_json(path_from)
+    if from_json:
+        original_route: List[Node] = read_route_json(path_from)
+    else:
+        original_route: List[Node] = read_route_osm(path_from)
     print("Route parsed")
 
     # Split route into node pairs and count their frequencies. pairs_dict is a graph with pairs as its vertices.
@@ -30,7 +33,7 @@ def simplify_route(path_from: str, path_to: str, json: bool):
     print("Simplification completed")
 
     print("Saving route...")
-    if json:
+    if to_json:
         save_route_json(simplified_route, path_to)
     else:
         save_route_osm(simplified_route, path_to)
@@ -46,8 +49,17 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     if args.output_path[-4:].lower() == ".osm":
-        simplify_route(args.input_path, args.output_path, json=False)
+        to_json = False
     elif args.output_path[-5:].lower() == ".json":
-        simplify_route(args.input_path, args.output_path, json=True)
+        to_json = True
     else:
         raise Exception("Output file extension should be either .json or .osm")
+
+    if args.input_path[-4:].lower() == ".osm":
+        from_json = False
+    elif args.input_path[-5:].lower() == ".json":
+        from_json = True
+    else:
+        raise Exception("Input file extension should be either .json or .osm")
+
+    simplify_route(args.input_path, args.output_path, to_json=to_json, from_json=from_json)

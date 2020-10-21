@@ -1,9 +1,38 @@
 import json
-from typing import List, Dict
+from typing import List, Dict, Tuple
+import xml.etree.ElementTree as xml
+
 from lxml import etree
 
 from node import LatLon, Node
 from route import Route
+
+
+def get_xml_tree(source: str) -> xml:
+    return xml.fromstring(source)
+
+
+def find_osm_nodes(source: str) -> Dict[int, Node]:
+    tree = get_xml_tree(source)
+
+    nodes = dict()
+    for element in tree:
+        # Nodes
+        if element.tag == "node":
+            nodes[int(element.attrib["id"])] = Node(latlon=LatLon(lat=float(element.attrib["lat"]),
+                                                                  lon=float(element.attrib["lon"])))
+
+    return nodes
+
+
+def read_route_osm(path: str) -> List[Node]:
+    with open(path, 'r') as f:
+        source = f.read()
+
+    nodes = find_osm_nodes(source)
+
+    nodes_list: List[Node] = [nodes[-i-1] for i in range(len(nodes))]
+    return nodes_list
 
 
 def read_route_json(path: str) -> List[Node]:
