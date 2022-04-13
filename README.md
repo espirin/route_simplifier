@@ -1,6 +1,6 @@
 # RouteSimplifier
 
-RouteSimplifier is a Python script that make complex navigation routes easier to view. It intelligently offsets 
+RouteSimplifier is a Python script that makes complex navigation routes easier to view. It intelligently offsets 
 overlapping parts of the route, simplifies complex intersections and exports results to either OSM or JSON.
 
 ## Installation
